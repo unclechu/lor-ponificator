@@ -1,6 +1,7 @@
 $.lor_ponificator_avatars_database_callback({
     avatars_database: [
         {
+            // Source: http://www.bronyland.com/avatars/other-pony-avatars/
             pack: true,
             pack_id: "bronyland_other_pony_avatars",
             width: 100,
