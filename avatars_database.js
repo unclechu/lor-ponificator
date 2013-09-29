@@ -1840,7 +1840,9 @@ $.lor_ponificator_avatars_database_callback({
             ]
         },
 
-        // just for example, single url without pack
-        { url: "http://i361.photobucket.com/albums/oo54/Awsomedude137/Rarityavatar.jpg" }
+        // just for example and for older script versions, single url without pack
+        { url: "http://cdn.head-fi.org/0/08/200x200px-ZC-0801e9d1_rarity_princess_headfi.png", width: 200, height: 200 },
+        { url: "http://th02.deviantart.net/fs70/200H/i/2013/232/1/4/fedora_pony_5_by_zee66-d6ixlwk.png", width: 220, heigth: 200 },
+        { url: "http://bronyland.com/wp-content/uploads/2011/09/my_little_pony_dj_pon3_avatar_001.png", width: 200, height: 200 }
     ]
 });
