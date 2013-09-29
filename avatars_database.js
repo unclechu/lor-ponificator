@@ -1846,3 +1846,4 @@ $.lor_ponificator_avatars_database_callback({
         { url: "http://bronyland.com/wp-content/uploads/2011/09/my_little_pony_dj_pon3_avatar_001.png", width: 200, height: 200 }
     ]
 });
+// vim:set ts=4 sw=4 expandtab:

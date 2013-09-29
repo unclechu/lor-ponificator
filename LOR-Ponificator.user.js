@@ -435,3 +435,4 @@ $(function () {
         $(document.head).append(script);
     } else ponify();
 });
+// vim:set ts=4 sw=4 expandtab:
