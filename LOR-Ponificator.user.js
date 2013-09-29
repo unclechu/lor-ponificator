@@ -207,6 +207,23 @@ $(function () {
             index: usernameIndex
         };
     }
+
+    /**
+     * this - DOM-element
+     */
+    function catchOriginalAvatar() {
+        var originalAvatarURL = null;
+
+        var $img = $(this)
+            .closest('div.userpic')
+            .find('img:not(.lor_ponificator_ponified_avatar)');
+
+        if ($img.size() > 0) {
+            originalAvatarURL = $img.attr('src');
+        }
+
+        return originalAvatarURL;
+    }
     
     function updateAvatars() {
         $('div.userpic').each(function () {
@@ -221,6 +238,7 @@ $(function () {
                     .text('PONIFY!')
                     .attr('title', 'Ponify avatar of this username');
                 $(this).find('span.lor_ponificator_change_avatar').hide();
+                $(this).find('span.lor_ponificator_list_avatar').hide();
             } else {
                 var $ava = $(this).find('img:not(.lor_ponificator_ponified_avatar)');
                 $ava.hide();
@@ -239,6 +257,7 @@ $(function () {
                     .text('UNPONIFY')
                     .attr('title', 'Unponify avatar of this username');
                 $(this).find('span.lor_ponificator_change_avatar').show();
+                $(this).find('span.lor_ponificator_list_avatar').show();
             }
         });
     }
@@ -281,6 +300,265 @@ $(function () {
             updateAvatars();
         }
     }
+
+    var popupStylesLoaded = false;
+
+    function popupCloserCallback() {
+        $('div[class^=lor_ponificator_popup]').remove();
+    }
+    
+    function showPopup(htmlCode) {
+        if ( ! popupStylesLoaded) {
+            var style = document.createElement('style');
+            style.type = 'text/css';
+            var css = ''
+                +'div.lor_ponificator_popup_bg {'
+                    +'display: block;'
+                    +'background: #272c2d;'
+                    +'position: fixed;'
+                    +'left: 0; top: 0;'
+                    +'width: 100%;'
+                    +'height: 100%;'
+                    +'z-index: 99991;'
+                    +'opacity: 0.9;'
+                +'}'
+                +'div.lor_ponificator_popup_content {'
+                    +'display: table-cell;'
+                    +'position: fixed;'
+                    +'width: 80%;'
+                    +'height: 80%;'
+                    +'left: 10%;'
+                    +'top: 10%;'
+                    +'overflow: auto;'
+                    +'z-index: 99992;'
+                +'}'
+                +'div.lor_ponificator_popup_closer {'
+                    +'display: block;'
+                    +'position: fixed;'
+                    +'top: 2%;'
+                    +'right: 2%;'
+                    +'z-index: 99999;'
+                    +'cursor: pointer;'
+                    +'text-decoration: underline;'
+                +'}'
+                +'div.lor_ponificator_popup_closer:hover {'
+                    +'color: white;'
+                +'}'
+                +'div.lor_ponificator_popup_closer:before {'
+                    +'content: "[X]";'
+                    +'margin-right: 7px;'
+                +'}'
+
+                +'span.lor_ponificator_list_ok,'
+                +'span.lor_ponificator_list_unponify,'
+                +'span.lor_ponificator_list_cancel {'
+                    +'text-decoration: underline;'
+                    +'cursor: pointer;'
+                    +'margin-right: 7px;'
+                +'}'
+                +'span.lor_ponificator_list_ok:hover,'
+                +'span.lor_ponificator_list_unponify:hover,'
+                +'span.lor_ponificator_list_cancel:hover {'
+                    +'color: white;'
+                +'}'
+
+                +'div.lor_ponificator_avatar_preview,'
+                +'div.lor_ponificator_avatar_original {'
+                    +'position: fixed;'
+                    +'top: 15%;'
+                    +'right: 15%;'
+                    +'z-index: 100;'
+                +'}'
+                +'div.lor_ponificator_avatar_preview img,'
+                +'div.lor_ponificator_avatar_original img {'
+                    +'max-width: 150px;'
+                +'}'
+                +'div.lor_ponificator_avatar_preview {'
+                    +'padding-right: 170px;'
+                    +'z-index: 50;'
+                +'}'
+
+                +'ol.lor_ponificator_list_items {'
+                    +'margin-bottom: 15px;'
+                +'}'
+                +'ol.lor_ponificator_list_items span {'
+                    +'text-decoration: underline;'
+                    +'cursor: pointer;'
+                +'}'
+                +'ol.lor_ponificator_list_items span:hover {'
+                    +'color: white;'
+                +'}'
+                +'ol.lor_ponificator_list_items span.active {'
+                    +'font-weight: bold;'
+                    +'color: white;'
+                +'}'
+                +'ol.lor_ponificator_list_items ol {'
+                    +'margin-left: 20px;'
+                    +'margin-bottom: 10px;'
+                +'}'
+                ;
+            $(style).html(css);
+            $(document.head).append(style);
+            popupStylesLoaded = true;
+        }
+
+        var appendCode = ''
+            +'<div class="lor_ponificator_popup_bg">'
+            +'</div>'
+            +'<div class="lor_ponificator_popup_content">'
+                + htmlCode
+            +'</div>'
+            +'<div class="lor_ponificator_popup_closer">CLOSE</div>'
+            ;
+
+        $(document.body).append(appendCode);
+
+        $('div.lor_ponificator_popup_closer').click(popupCloserCallback);
+    }
+
+    function listCallback() {
+        var user = catchUsername.call(this);
+        if (user.index === false) throw new Error('Username not found');
+
+        var menu = ''
+            +'<p><span class="lor_ponificator_list_ok">OK</span>'
+            +'<span class="lor_ponificator_list_unponify">UNPONIFY</span>'
+            +'<span class="lor_ponificator_list_cancel">CANCEL</span></p>'
+            ;
+
+        function setActive() {
+            var $ava = $('div.lor_ponificator_avatar_preview img');
+            $('ol.lor_ponificator_list_items li span').removeClass('active');
+            $('ol.lor_ponificator_list_items li span').each(function () {
+                if ($ava.attr('src') == $(this).html()) {
+                    $(this).addClass('active').closest('li.pack')
+                        .find('> span').addClass('active');
+                }
+            });
+        }
+
+        /**
+         * this - DOM element
+         */
+        function listElementCallback() {
+            var $parentLi = $(this).parent('li');
+            if ($parentLi.hasClass('pack')) {
+                var $subList = $parentLi.children('ol');
+                if ($subList.filter(':visible').size() > 0)
+                    $subList.hide();
+                else
+                    $subList.show();
+            } else {
+                var url = $(this).html();
+                $(this)
+                    .closest('div.lor_ponificator_popup_content')
+                    .find('div.lor_ponificator_avatar_preview img')
+                    .attr('src', url);
+                setActive();
+            }
+        }
+
+        function okCallback() {
+            ponifiedUsers[user.index].avurl = $(this)
+                .closest('div.lor_ponificator_popup_content')
+                .find('div.lor_ponificator_avatar_preview img')
+                .attr('src');
+            setCookie(
+                'lor_ponificator_ponified_users_avatars',
+                JSON.stringify(ponifiedUsers)
+            );
+            updateAvatars();
+            popupCloserCallback.call(this);
+        }
+
+        var list = '<ol class="lor_ponificator_list_items">';
+        avatarsDatabase.avatars_database.forEach(function (item) {
+            if (typeof item.pack === 'boolean' && item.pack === true) {
+                var subItemsCode = '';
+
+                for (var i=0; i<excludePacksID.length; i++) {
+                    if (item.pack_id == excludePacksID[i]) {
+                        return;
+                    }
+                }
+                if (onlyPackID.length > 0) {
+                    var packCatched = false;
+                    onlyPackID.forEach(function (packID) {
+                        if (packID == item.pack_id) {
+                            packCatched = true;
+                        }
+                    });
+                    if (!packCatched) return;
+                }
+                item.list.forEach(function (subItem) {
+                    for (var i=0; i<excludeURLs.length; i++) {
+                        if (subItem.url == excludeURLs[i]) {
+                            return;
+                        }
+                    }
+                    subItemsCode += '<li><span>'+ subItem.url +'</span></li>';
+                });
+                if (typeof item.url_prefix === 'string') {
+                    item.list_prefixed.forEach(function (subItem) {
+                        var url = item.url_prefix + subItem.file;
+                        for (var i=0; i<excludeURLs.length; i++) {
+                            if (url == excludeURLs[i]) {
+                                return;
+                            }
+                        }
+                        subItemsCode += '<li><span>'+ url +'</span></li>';
+                    });
+                }
+                if (subItemsCode !== '') {
+                    list += '<li class="pack">';
+                    list += 'Pack • <span>'+ item.pack_id +'</span>';
+                    list += '<ol>'+ subItemsCode +'</ol>';
+                    list += '</li>';
+                }
+            } else {
+                if (onlyPackID.length > 0) return;
+                for (var i=0; i<excludeURLs.length; i++) {
+                    if (item.url == excludeURLs[i]) {
+                        return;
+                    }
+                }
+                list += '<li><span>'+ item.url +'</span></li>';
+            }
+        });
+        list += '</ol>';
+
+        var htmlCode = ''
+            +'<h2>Choose avatar from list</h2>'
+            +'<div class="lor_ponificator_avatar_preview">'
+                +'<p>Ponified:</p>'
+                +'<img alt="Ponies everywhere" src="'
+                + ponifiedUsers[user.index].avurl +'" /></div>'
+            ;
+
+        var originalAvatar = catchOriginalAvatar.call(this);
+        if (originalAvatar)
+            htmlCode += ''
+                +'<div class="lor_ponificator_avatar_original">'
+                    +'<p>Original:</p>'
+                    +'<img alt="Original avatar" src="'
+                    + originalAvatar +'" /></div>'
+
+        htmlCode += ''
+            + menu
+            + list
+            + menu
+            ;
+        showPopup(htmlCode);
+        $('span.lor_ponificator_list_cancel').click(popupCloserCallback);
+        $('span.lor_ponificator_list_ok').click(okCallback);
+        $('span.lor_ponificator_list_unponify').click(function () {
+            unponifyUsername(user.name);
+            popupCloserCallback.call(this);
+        });
+        setActive();
+        $('ol.lor_ponificator_list_items li.pack ol').hide();
+        $('ol.lor_ponificator_list_items span').click(listElementCallback);
+    }
     
     function initAvatarTools() {
         var style = document.createElement('style');
@@ -313,16 +591,20 @@ $(function () {
             +'article[id^=topic] div.lor_ponificator_avatar_tools span {'
                 +'font-size: 9px;'
             +'}'
+            // #whois_userpic for profile page
             +'div.lor_ponificator_avatar_tools span span,'
-            +'div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar {'
+            +'div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar,'
+            +'#whois_userpic div.lor_ponificator_avatar_tools span span,'
+            +'#whois_userpic div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar {'
                 +'cursor: pointer;'
-                +'display: inline-block !important;'
+                +'display: inline-block;'
                 +'background: none;'
                 +'opacity: 1.0;'
             +'}'
-            +'div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar {'
+            +'div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar,'
+            +'#whois_userpic div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar {'
                 +'background: #272c2d;'
-                +'display: block !important;'
+                +'display: block;'
                 +'opacity: 0.9;'
             +'}'
             +'div.lor_ponificator_avatar_tools span span:hover,'
@@ -345,6 +627,10 @@ $(function () {
                     +'<span class="lor_ponificator_rand_avatar" title="Random avatar">RAND</span>'
                     +'<span class="lor_ponificator_url_avatar" title="Set cutsom avatar URL">URL</span>'
                 +'</span>'
+                +'<span class="lor_ponificator_advanced_avatar_tools">'
+                    +'<span class="lor_ponificator_list_avatar" title="Choose avatar from list">LIST</span>'
+                    +'<span class="lor_ponificator_advanced_avatars_control" title="Advanced avatars control">CONTROL</span>'
+                +'</span>'
             +'</div>'
             ;
 
@@ -357,6 +643,7 @@ $(function () {
             $(this).find('span.lor_ponificator_next_avatar').click(nextAvatarCallback);
             $(this).find('span.lor_ponificator_rand_avatar').click(randAvatarCallback);
             $(this).find('span.lor_ponificator_url_avatar').click(urlAvatarCallback);
+            $(this).find('span.lor_ponificator_list_avatar').click(listCallback);
         });
     }
 
