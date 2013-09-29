@@ -15,6 +15,91 @@ $(function () {
     var excludePacksID = [ /* "bronyland_goodies_avatars_antagonist" */ ];
     var excludeURLs = [ /* "http://bronyland.com/goodies/avatars/antagonist/discord_avatar_001.png" */ ];
     var onlyPackID = [ /* "bronyland_goodies_avatars_applejack" */ ];
+    var excludeBroniesFromRandomPonifyUnponified = [
+        'a1batross',
+        'aidan',
+        'Akamanah',
+        'amomymous',
+        'AnimusPEXUS',
+        'Anonymous',
+        'Antimatter',
+        'AptGet',
+        'atrus',
+        'avertex',
+        'Bagrov',
+        'bsdfun',
+        'Chaser_Andrey',
+        'Cooler',
+        'com',
+        'Copycat',
+        'cryptohedge',
+        'Dark_SavanT',
+        'Darth_Revan',
+        'dearboy',
+        'Deneb',
+        'derlafff',
+        'devpony',
+        'Dispetcher14',
+        'DoctorSinus',
+        'drBatty',
+        'druganddrop-2',
+        'ekzotech',
+        'emulek',
+        'essir',
+        'evilmanul',
+        'Extraterrestrial',
+        'Falcon-peregrinus',
+        'Flyn',
+        'fornlr',
+        'HiddenComplexity',
+        'hizel',
+        'Hoodoo',
+        'IceAlchemist',
+        'Igorrr',
+        'Ingvarr',
+        'IPR',
+        'ishido',
+        'ishitori',
+        'kasthack',
+        'kiverattes',
+        'ktk',
+        'ktulhu666',
+        'Landgraf',
+        'Legioner',
+        'Le_Raux',
+        'Lonli-Lockley',
+        'Lorchanin',
+        'melkor217',
+        'mephistopheles',
+        'mopsene',
+        'morse',
+        'NetForHack',
+        'Newlifer',
+        'nihil',
+        'Old_Hamster',
+        'OldWiseCat',
+        'olibjerd',
+        'PaxthonFettel',
+        'pevzi',
+        'procoder99',
+        'proud_anon',
+        'quowah',
+        'reliktt',
+        'rikardoac',
+        'Romaboy',
+        'rtvd',
+        'StalinEXE',
+        'thelonelyisland',
+        'Thero',
+        'uin',
+        'vazgen05',
+        'veneperkele',
+        'voronin',
+        'x0r',
+        'Yaourt',
+        'yaspol',
+        'unclechu'
+    ];
 
     var avatarsDatabase = null;
     var ponifiedUsers = [];
@@ -273,7 +358,16 @@ $(function () {
             var user = catchUsername.call(this);
 
             if (user.index === false) {
-                if (!randomPonifyUnponified) {
+                var userRandomPonifyExcluded = false;
+                if (randomPonifyUnponified) {
+                    for (var i=0; i<excludeBroniesFromRandomPonifyUnponified.length; i++) {
+                        if (user.name == excludeBroniesFromRandomPonifyUnponified[i]) {
+                            userRandomPonifyExcluded = true;
+                        }
+                    }
+                }
+
+                if (!randomPonifyUnponified || userRandomPonifyExcluded) {
                     $(this).find('img:not(.lor_ponificator_ponified_avatar)').show();
                     $(this).find('img.lor_ponificator_ponified_avatar').remove();
                 } else {
@@ -288,7 +382,7 @@ $(function () {
                 $(this).find('span.lor_ponificator_list_avatar').hide();
 
                 // random ponification
-                if (randomPonifyUnponified) {
+                if (randomPonifyUnponified && ! userRandomPonifyExcluded) {
                     var index = null;
                     for (var i=0; i<tempUsers.length; i++) {
                         if (tempUsers[i].user == user.name) {
