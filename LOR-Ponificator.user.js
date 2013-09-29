@@ -139,23 +139,48 @@ $(function () {
 
         updateAvatars();
     }
+
+    /**
+     * this - DOM-element
+     */
+    function catchUsername() {
+        var username;
+        var usernameIndex = false;
+
+        // topic view
+        if ($(this).closest('div.msg-container').size() > 0) {
+            username = $(this).closest('div.msg-container').find('div.sign a');
+
+        // profile page
+        } else if ($(this).closest('#bd').find('div.vcard span.nickname').size() > 0) {
+            username = $(this).closest('#bd').find('div.vcard span.nickname');
+
+        // anything else
+        } else {
+            throw new Error('Username not found');
+        }
+
+        if (username.size() > 0) {
+            username = username.text();
+        } else {
+            username = 'anonymous';
+        }
+
+        ponifiedUsers.forEach(function (user, index) {
+            if (user.user == username) usernameIndex = index;
+        });
+
+        return {
+            name: username,
+            index: usernameIndex
+        };
+    }
     
     function updateAvatars() {
         $('div.userpic').each(function () {
-            var $msg = $(this).closest('div.msg-container');
-            var username = $msg.find('div.sign a');
-            var usernameFound = false;
-            if (username.size() < 1) {
-                username = 'anonymous';
-            } else {
-                username = username.text();
-            }
+            var user = catchUsername.call(this);
 
-            ponifiedUsers.forEach(function (user, index) {
-                if (user.user == username) usernameFound = index;
-            });
-
-            if (usernameFound === false) {
+            if (user.index === false) {
                 $(this).find('img:not(.lor_ponificator_ponified_avatar)').show();
                 $(this).find('img.lor_ponificator_ponified_avatar').remove();
                 $(this).find('span.lor_ponificator_ponify_avatar').show().text('PONIFY!');
@@ -165,11 +190,11 @@ $(function () {
                 $ava.hide();
                 if ($(this).find('img.lor_ponificator_ponified_avatar').size() < 1) {
                     $ava.after('<img alt="Ponies everywhere" src="'
-                        + ponifiedUsers[usernameFound].avurl
+                        + ponifiedUsers[user.index].avurl
                         +'" class="lor_ponificator_ponified_avatar" />');
                 } else {
                     $(this).find('img.lor_ponificator_ponified_avatar')
-                        .attr('src', ponifiedUsers[usernameFound].avurl)
+                        .attr('src', ponifiedUsers[user.index].avurl)
                         .show();
                 }
                 $(this).find('span.lor_ponificator_ponify_avatar').show().text('UNPONIFY');
@@ -179,44 +204,22 @@ $(function () {
     }
 
     function avatarPonifyCallback() {
-        var $msg = $(this).closest('div.msg-container');
-        var username = $msg.find('div.sign a');
-        var usernameFound = false;
-        if (username.size() < 1) {
-            username = 'anonymous';
-        } else {
-            username = username.text();
-        }
+        var user = catchUsername.call(this);
 
-        ponifiedUsers.forEach(function (user, index) {
-            if (user.user == username) usernameFound = index;
-        });
-
-        if (usernameFound === false) {
-            ponifyUsername(username);
+        if (user.index === false) {
+            ponifyUsername(user.name);
         } else {
-            unponifyUsername(username);
+            unponifyUsername(user.name);
         }
 
         return false;
     }
 
     function nextAvatarCallback() {
-        var $msg = $(this).closest('div.msg-container');
-        var username = $msg.find('div.sign a');
-        var usernameFound = false;
-        if (username.size() < 1) {
-            username = 'anonymous';
-        } else {
-            username = username.text();
-        }
+        var user = catchUsername.call(this);
 
-        ponifiedUsers.forEach(function (user, index) {
-            if (user.user == username) usernameFound = index;
-        });
-
-        if (usernameFound !== false) {
-            nextAvatar(username);
+        if (user.index !== false) {
+            nextAvatar(user.name);
         }
 
         return false;
