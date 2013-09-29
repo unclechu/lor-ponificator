@@ -3,7 +3,7 @@
 // @namespace   LOR
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.1
+// @version     1.1.1
 // ==/UserScript==
 
 $(function () {
@@ -353,7 +353,7 @@ $(function () {
     function prepareAvatarsURLs() {
         var list = avatarsDatabase.avatars_database;
         list.forEach(function (item) {
-            if (item.pack) {
+            if (typeof item.pack === 'boolean' && item.pack === true) {
                 for (var i=0; i<excludePacksID.length; i++) {
                     if (item.pack_id == excludePacksID[i]) {
                         return;
