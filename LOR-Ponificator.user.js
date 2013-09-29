@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name        LOR-Ponificator
 // @namespace   LOR
+// @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
 // @version     1.1.1
