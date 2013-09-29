@@ -1,4 +1,5 @@
-lor-ponificator
+LOR-Ponificator
 ===============
 
-linux.org.ru avatar ponificator
+LINUX.ORG.RU avatar ponificator.
+Greasemonkey script.
