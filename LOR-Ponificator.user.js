@@ -93,7 +93,7 @@ $(function () {
      *  'next'
      *  'rand'
      */
-    function rotateAvatar(username, side) {
+    function rotateAvatar(username, side, target) {
         var userAvaURL = null;
         var userIndex = -1;
         for (var i=0; i<ponifiedUsers.length; i++) {
@@ -104,6 +104,10 @@ $(function () {
         }
 
         if (userAvaURL === null) throw new Error('Username "'+ username +'" not found');
+
+        if (target instanceof $) {
+            userAvaURL = $(target).attr('src');
+        }
 
         if (side !== 'rand') {
             for (var i=0; i<avatarsURLs.length; i++) {
@@ -124,6 +128,11 @@ $(function () {
                         throw new Error('Incorrect side of avatar rotating');
                     }
 
+                    if (target instanceof $) {
+                        $(target).attr('src', avatarsURLs[newAvaIndex]);
+                        return;
+                    }
+
                     ponifiedUsers[userIndex].avurl = avatarsURLs[newAvaIndex];
                     setCookie(
                         'lor_ponificator_ponified_users_avatars',
@@ -136,6 +145,10 @@ $(function () {
         }
         
         // if avatar url not found in database or side is 'rand' - set random avatar
+        if (target instanceof $) {
+            $(target).attr('src', getRandomAvaURL());
+            return;
+        }
         ponifiedUsers[userIndex].avurl = getRandomAvaURL();
         setCookie(
             'lor_ponificator_ponified_users_avatars',
@@ -174,6 +187,22 @@ $(function () {
     function catchUsername() {
         var username;
         var usernameIndex = false;
+
+        if (this instanceof String) {
+            var username = this.toString();
+            ponifiedUsers.forEach(function (user, index) {
+                if (user.user == username) usernameIndex = index;
+            });
+
+            if (usernameIndex === false) {
+                throw new Error('Username "'+ username +'" not found');
+            }
+
+            return {
+                name: username,
+                index: usernameIndex
+            };
+        }
 
         // topic view
         if ($(this).closest('div.msg-container').size() > 0) {
@@ -270,27 +299,32 @@ $(function () {
             unponifyUsername(user.name);
     }
 
-    function prevAvatarCallback() {
+    function prevAvatarCallback(target) {
         var user = catchUsername.call(this);
-        if (user.index !== false) rotateAvatar(user.name, 'prev');
+        if (user.index !== false) rotateAvatar(user.name, 'prev', target);
     }
 
-    function nextAvatarCallback() {
+    function nextAvatarCallback(target) {
         var user = catchUsername.call(this);
-        if (user.index !== false) rotateAvatar(user.name, 'next');
+        if (user.index !== false) rotateAvatar(user.name, 'next', target);
     }
 
-    function randAvatarCallback() {
+    function randAvatarCallback(target) {
         var user = catchUsername.call(this);
-        if (user.index !== false) rotateAvatar(user.name, 'rand');
+        if (user.index !== false) rotateAvatar(user.name, 'rand', target);
     }
 
-    function urlAvatarCallback() {
+    function urlAvatarCallback(target) {
         var user = catchUsername.call(this);
         if (user.index !== false) {
             var avatarURL = prompt('Paste avatar URL', 'http://');
             if ( ! avatarURL || avatarURL == ''
             || avatarURL.match(/^http[s]?:\/\/$/)) return;
+
+            if (target instanceof $) {
+                $(target).attr('src', avatarURL);
+                return;
+            }
 
             ponifiedUsers[user.index].avurl = avatarURL;
             setCookie(
@@ -351,6 +385,10 @@ $(function () {
 
                 +'span.lor_ponificator_list_ok,'
                 +'span.lor_ponificator_list_unponify,'
+                +'span.lor_ponificator_list_prev_avatar,'
+                +'span.lor_ponificator_list_next_avatar,'
+                +'span.lor_ponificator_list_rand_avatar,'
+                +'span.lor_ponificator_list_url_avatar,'
                 +'span.lor_ponificator_list_cancel {'
                     +'text-decoration: underline;'
                     +'cursor: pointer;'
@@ -358,6 +396,10 @@ $(function () {
                 +'}'
                 +'span.lor_ponificator_list_ok:hover,'
                 +'span.lor_ponificator_list_unponify:hover,'
+                +'span.lor_ponificator_list_prev_avatar:hover,'
+                +'span.lor_ponificator_list_next_avatar:hover,'
+                +'span.lor_ponificator_list_rand_avatar:hover,'
+                +'span.lor_ponificator_list_url_avatar:hover,'
                 +'span.lor_ponificator_list_cancel:hover {'
                     +'color: white;'
                 +'}'
@@ -423,6 +465,10 @@ $(function () {
         var menu = ''
             +'<p><span class="lor_ponificator_list_ok">OK</span>'
             +'<span class="lor_ponificator_list_unponify">UNPONIFY</span>'
+            +'<span class="lor_ponificator_list_prev_avatar" title="Previous avatar">«</span>'
+            +'<span class="lor_ponificator_list_next_avatar" title="Next avatar">»</span>'
+            +'<span class="lor_ponificator_list_rand_avatar" title="Random avatar">RANDOM</span>'
+            +'<span class="lor_ponificator_list_url_avatar" title="Set cutsom avatar URL">URL</span>'
             +'<span class="lor_ponificator_list_cancel">CANCEL</span></p>'
             ;
 
@@ -548,12 +594,32 @@ $(function () {
             + list
             + menu
             ;
+
         showPopup(htmlCode);
+
         $('span.lor_ponificator_list_cancel').click(popupCloserCallback);
         $('span.lor_ponificator_list_ok').click(okCallback);
+        var usernameThis = new String(user.name);
+        var $target = $('div.lor_ponificator_avatar_preview img');
         $('span.lor_ponificator_list_unponify').click(function () {
             unponifyUsername(user.name);
-            popupCloserCallback.call(this);
+            popupCloserCallback();
+        });
+        $('span.lor_ponificator_list_prev_avatar').click(function () {
+            prevAvatarCallback.call(usernameThis, $target);
+            setActive();
+        });
+        $('span.lor_ponificator_list_next_avatar').click(function () {
+            nextAvatarCallback.call(usernameThis, $target);
+            setActive();
+        });
+        $('span.lor_ponificator_list_rand_avatar').click(function () {
+            randAvatarCallback.call(usernameThis, $target);
+            setActive();
+        });
+        $('span.lor_ponificator_list_url_avatar').click(function () {
+            urlAvatarCallback.call(usernameThis, $target);
+            setActive();
         });
         setActive();
         $('ol.lor_ponificator_list_items li.pack ol').hide();
