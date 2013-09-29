@@ -4,7 +4,7 @@
 // @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.2.1
+// @version     1.2.2
 // @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
 // @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
@@ -353,11 +353,12 @@ $(function () {
     }
     
     var tempUsers = [];
-    function updateAvatars() {
+    function updateAvatars(preDatabase) {
         $('div.userpic').each(function () {
             var user = catchUsername.call(this);
 
             if (user.index === false) {
+                if (preDatabase) return;
                 var userRandomPonifyExcluded = false;
                 if (randomPonifyUnponified) {
                     for (var i=0; i<excludeBroniesFromRandomPonifyUnponified.length; i++) {
@@ -422,6 +423,7 @@ $(function () {
                         .attr('src', ponifiedUsers[user.index].avurl)
                         .show();
                 }
+                if (preDatabase) return;
 
                 $(this).find('span.lor_ponificator_ponify_avatar')
                     .show()
@@ -992,9 +994,6 @@ $(function () {
             +'div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar:hover {'
                 +'color: white;'
             +'}'
-            +'img.lor_ponificator_ponified_avatar {'
-                +'max-width: 150px;'
-            +'}'
             ;
         $(style).html(css);
         $(document.head).append(style);
@@ -1096,6 +1095,13 @@ $(function () {
         initAvatarTools();
         updateAvatars();
     }
+
+    // fast loading ponified avatars
+    var style = document.createElement('style');
+    style.type = 'text/css';
+    $(style).html('img.lor_ponificator_ponified_avatar { max-width: 150px; }');
+    $(document.head).append(style);
+    updateAvatars(true);
 
     if (avatarsDatabase === null) {
         $.lor_ponificator_avatars_database_callback = function (jsonObject) {
