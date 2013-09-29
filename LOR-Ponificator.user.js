@@ -12,9 +12,9 @@
 $(function () {
     // Configs
     var avatarsDatabaseURL = 'https://raw.github.com/unclechu/lor-ponificator/master/avatars_database.js';
-    var excludePacksID = [ /* "bronyland_other_pony_avatars" */ ];
-    var excludeURLs = [ /* "http://www.bronyland.com/goodies/avatars/other/100/berry_punch_avatar.png" */ ];
-    var onlyPackID = [ /* "bronyland_other_pony_avatars" */ ];
+    var excludePacksID = [ /* "bronyland_goodies_avatars_antagonist" */ ];
+    var excludeURLs = [ /* "http://bronyland.com/goodies/avatars/antagonist/discord_avatar_001.png" */ ];
+    var onlyPackID = [ /* "bronyland_goodies_avatars_applejack" */ ];
 
     var avatarsDatabase = null;
     var ponifiedUsers = [];
