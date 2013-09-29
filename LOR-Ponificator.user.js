@@ -245,7 +245,7 @@ $(function () {
                 if ($(this).find('img.lor_ponificator_ponified_avatar').size() < 1) {
                     $ava.after('<img alt="Ponies everywhere" src="'
                         + ponifiedUsers[user.index].avurl
-                        +'" class="lor_ponificator_ponified_avatar" />');
+                        +'" class="lor_ponificator_ponified_avatar photo" />');
                 } else {
                     $(this).find('img.lor_ponificator_ponified_avatar')
                         .attr('src', ponifiedUsers[user.index].avurl)
