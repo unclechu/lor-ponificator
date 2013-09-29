@@ -4,7 +4,7 @@
 // @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.2.4
+// @version     1.2.4.1
 // @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
 // @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
@@ -1038,6 +1038,8 @@ $(function () {
             throw new Error('Incorrect avatars database key type');
         if (avatarsDatabase.avatars_database.length < 1)
             throw new Error('Empty avatars database');
+        if ( ! Array.isArray(avatarsDatabase.bronies_list))
+            throw new Error('Incorrect bronies list');
 
         excludeBroniesFromRandomPonifyUnponified = avatarsDatabase.bronies_list;
         prepareAvatarsURLs();
