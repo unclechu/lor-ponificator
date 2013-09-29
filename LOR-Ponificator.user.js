@@ -942,6 +942,24 @@ $(function () {
 
         showPopup(htmlCode);
     }
+
+    function fixRandomAvatarCallback() {
+        var user = catchUsername.call(this);
+        var avatarURL = $(this).closest('div.userpic')
+            .find('img.lor_ponificator_ponified_avatar')
+            .attr('src');
+
+        ponifyUsername(user.name);
+
+        user = catchUsername.call(new String(user.name));
+
+        ponifiedUsers[user.index].avurl = avatarURL;
+        setCookie(
+            'lor_ponificator_ponified_users_avatars',
+            JSON.stringify(ponifiedUsers)
+        );
+        updateAvatars();
+    }
     
     function initAvatarTools() {
         var style = document.createElement('style');
@@ -1013,6 +1031,7 @@ $(function () {
                 +'</span>'
                 +'<span class="lor_ponificator_third_line">'
                     +'<span class="lor_ponificator_view_original_avatar" title="View original avatar of this user">ORIGINAL</span>'
+                    +'<span class="lor_ponificator_fix_random_avatar" title="Fix this random avatar">FIX</span>'
                 +'</span>'
             +'</div>'
             ;
@@ -1029,6 +1048,7 @@ $(function () {
             $(this).find('span.lor_ponificator_list_avatar').click(listCallback);
             $(this).find('span.lor_ponificator_advanced_avatars_control').click(controlCallback);
             $(this).find('span.lor_ponificator_view_original_avatar').click(originalAvatarCallback);
+            $(this).find('span.lor_ponificator_fix_random_avatar').click(fixRandomAvatarCallback);
         });
     }
 
