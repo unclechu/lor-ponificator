@@ -5,6 +5,8 @@
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
 // @version     1.1.1
+// @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
+// @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
 
 $(function () {
