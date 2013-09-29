@@ -307,7 +307,7 @@ $(function () {
             if ($(this).closest('article[id^=topic]').size() > 0) {
                 username = $(this).closest('div.msg-container').find('footer div.sign > a');
             } else {
-                username = $(this).closest('div.msg-container').find('div.sign a');
+                username = $(this).closest('div.msg-container').find('div.sign > a');
             }
 
         // profile page
