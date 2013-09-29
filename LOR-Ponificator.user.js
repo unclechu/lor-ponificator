@@ -4,7 +4,7 @@
 // @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.1.1
+// @version     1.1.2
 // @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
 // @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
@@ -177,7 +177,11 @@ $(function () {
 
         // topic view
         if ($(this).closest('div.msg-container').size() > 0) {
-            username = $(this).closest('div.msg-container').find('div.sign a');
+            if ($(this).closest('article[id^=topic]').size() > 0) {
+                username = $(this).closest('div.msg-container').find('footer div.sign > a');
+            } else {
+                username = $(this).closest('div.msg-container').find('div.sign a');
+            }
 
         // profile page
         } else if ($(this).closest('#bd').find('div.vcard span.nickname').size() > 0) {
@@ -306,7 +310,7 @@ $(function () {
                 +'text-decoration: underline;'
                 +'text-align: center;'
             +'}'
-            +'article[id^=topic]  div.lor_ponificator_avatar_tools span {'
+            +'article[id^=topic] div.lor_ponificator_avatar_tools span {'
                 +'font-size: 9px;'
             +'}'
             +'div.lor_ponificator_avatar_tools span span,'
