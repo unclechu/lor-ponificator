@@ -367,11 +367,13 @@ $(function () {
                     }
                 }
 
-                if (!randomPonifyUnponified || userRandomPonifyExcluded) {
+                if ( ! randomPonifyUnponified || userRandomPonifyExcluded) {
                     $(this).find('img:not(.lor_ponificator_ponified_avatar)').show();
                     $(this).find('img.lor_ponificator_ponified_avatar').remove();
+                    $(this).find('span.lor_ponificator_third_line').hide();
                 } else {
                     $(this).find('img:not(.lor_ponificator_ponified_avatar)').hide();
+                    $(this).find('span.lor_ponificator_third_line').show();
                 }
 
                 $(this).find('span.lor_ponificator_ponify_avatar')
@@ -427,6 +429,7 @@ $(function () {
                     .attr('title', 'Unponify avatar of this username');
                 $(this).find('span.lor_ponificator_change_avatar').show();
                 $(this).find('span.lor_ponificator_list_avatar').show();
+                $(this).find('span.lor_ponificator_third_line').hide();
             }
         });
     }
@@ -558,7 +561,8 @@ $(function () {
                     +'z-index: 100;'
                 +'}'
                 +'div.lor_ponificator_avatar_preview img,'
-                +'div.lor_ponificator_avatar_original img {'
+                +'div.lor_ponificator_avatar_original img,'
+                +'img.lor_ponificator_original_avatar_only {'
                     +'max-width: 150px;'
                 +'}'
                 +'div.lor_ponificator_avatar_preview {'
@@ -809,6 +813,22 @@ $(function () {
             })
 
     }
+
+    function originalAvatarCallback() {
+        var user = catchUsername.call(this);
+
+        var htmlCode = '<h2>Original avatar of "'+ user.name +'"</h2>';
+
+        var originalAvatar = catchOriginalAvatar.call(this);
+        if (!originalAvatar)
+            htmlCode += '<p>"'+ user.name +'" has no avatar</p>';
+        else
+            htmlCode += '<p><img alt="Original avatar" src="'
+                + originalAvatar
+                +'" class="lor_ponificator_original_avatar_only" /></p>';
+
+        showPopup(htmlCode);
+    }
     
     function initAvatarTools() {
         var style = document.createElement('style');
@@ -881,6 +901,9 @@ $(function () {
                     +'<span class="lor_ponificator_list_avatar" title="Choose avatar from list">LIST</span>'
                     +'<span class="lor_ponificator_advanced_avatars_control" title="Advanced avatars control">CONTROL</span>'
                 +'</span>'
+                +'<span class="lor_ponificator_third_line">'
+                    +'<span class="lor_ponificator_view_original_avatar" title="View original avatar of this user">ORIGINAL</span>'
+                +'</span>'
             +'</div>'
             ;
 
@@ -895,6 +918,7 @@ $(function () {
             $(this).find('span.lor_ponificator_url_avatar').click(urlAvatarCallback);
             $(this).find('span.lor_ponificator_list_avatar').click(listCallback);
             $(this).find('span.lor_ponificator_advanced_avatars_control').click(controlCallback);
+            $(this).find('span.lor_ponificator_view_original_avatar').click(originalAvatarCallback);
         });
     }
 
