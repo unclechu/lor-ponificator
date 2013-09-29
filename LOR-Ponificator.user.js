@@ -4,7 +4,7 @@
 // @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.1.3
+// @version     1.2.0
 // @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
 // @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
@@ -641,13 +641,13 @@ $(function () {
         if (user.index === false) throw new Error('Username not found');
 
         var menu = ''
-            +'<p><span class="lor_ponificator_list_ok">OK</span>'
-            +'<span class="lor_ponificator_list_unponify">UNPONIFY</span>'
+            +'<p><span class="lor_ponificator_list_ok" title="Apply changes">OK</span>'
+            +'<span class="lor_ponificator_list_unponify" title="Unponify this user">UNPONIFY</span>'
             +'<span class="lor_ponificator_list_prev_avatar" title="Previous avatar">←</span>'
             +'<span class="lor_ponificator_list_next_avatar" title="Next avatar">→</span>'
             +'<span class="lor_ponificator_list_rand_avatar" title="Random avatar">RANDOM</span>'
             +'<span class="lor_ponificator_list_url_avatar" title="Set cutsom avatar URL">URL</span>'
-            +'<span class="lor_ponificator_list_cancel">CANCEL</span></p>'
+            +'<span class="lor_ponificator_list_cancel" title="Discard changes and close">CANCEL</span></p>'
             ;
 
         function setActive() {
