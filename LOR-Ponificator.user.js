@@ -317,7 +317,13 @@ $(function () {
     function urlAvatarCallback(target) {
         var user = catchUsername.call(this);
         if (user.index !== false) {
-            var avatarURL = prompt('Paste avatar URL', 'http://');
+            var oldURL;
+            if (target instanceof $) {
+                oldURL = $(target).attr('src');
+            } else {
+                oldURL = ponifiedUsers[user.index].avurl;
+            }
+            var avatarURL = prompt('Paste avatar URL', oldURL);
             if ( ! avatarURL || avatarURL == ''
             || avatarURL.match(/^http[s]?:\/\/$/)) return;
 
