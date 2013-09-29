@@ -4,7 +4,7 @@
 // @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.1.2
+// @version     1.1.3
 // @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
 // @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
@@ -380,13 +380,24 @@ $(function () {
                 }
                 item.list.forEach(function (packItem) {
                     for (var i=0; i<excludeURLs.length; i++) {
-                        if (item.url == excludeURLs[i]) {
+                        if (packItem.url == excludeURLs[i]) {
                             return;
                         }
                     }
                     avatarsURLs.push(packItem.url);
                 });
-            } else { // url
+                if (typeof item.url_prefix === 'string') {
+                    item.list_prefixed.forEach(function (packItem) {
+                        var url = item.url_prefix + packItem.file;
+                        for (var i=0; i<excludeURLs.length; i++) {
+                            if (url == excludeURLs[i]) {
+                                return;
+                            }
+                        }
+                        avatarsURLs.push(url);
+                    });
+                }
+            } else { // single url (not pack)
                 if (onlyPackID.length > 0) return;
                 for (var i=0; i<excludeURLs.length; i++) {
                     if (item.url == excludeURLs[i]) {
