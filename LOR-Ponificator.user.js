@@ -19,6 +19,7 @@ $(function () {
     var avatarsDatabase = null;
     var ponifiedUsers = [];
     var avatarsURLs = [];
+    var randomPonifyUnponified = false;
 
     $.lor_ponificator_avatars_database_callback = function (jsonObject) {
         avatarsDatabase = jsonObject;
@@ -76,6 +77,18 @@ $(function () {
         }
     } catch (err) {
         if ( ! (err instanceof CookieNotFoundError)) throw err;
+    }
+
+    try {
+        randomPonifyUnponified = getCookie('lor_ponificator_random_ponify_unponified');
+        if (randomPonifyUnponified == '1') {
+            randomPonifyUnponified = true;
+        } else {
+            randomPonifyUnponified = false;
+        }
+    } catch (err) {
+        if ( ! (err instanceof CookieNotFoundError)) throw err;
+        randomPonifyUnponified = false;
     }
 
     // (c) https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
@@ -254,13 +267,18 @@ $(function () {
         return originalAvatarURL;
     }
     
+    var tempUsers = [];
     function updateAvatars() {
         $('div.userpic').each(function () {
             var user = catchUsername.call(this);
 
             if (user.index === false) {
-                $(this).find('img:not(.lor_ponificator_ponified_avatar)').show();
-                $(this).find('img.lor_ponificator_ponified_avatar').remove();
+                if (!randomPonifyUnponified) {
+                    $(this).find('img:not(.lor_ponificator_ponified_avatar)').show();
+                    $(this).find('img.lor_ponificator_ponified_avatar').remove();
+                } else {
+                    $(this).find('img:not(.lor_ponificator_ponified_avatar)').hide();
+                }
 
                 $(this).find('span.lor_ponificator_ponify_avatar')
                     .show()
@@ -268,6 +286,34 @@ $(function () {
                     .attr('title', 'Ponify avatar of this username');
                 $(this).find('span.lor_ponificator_change_avatar').hide();
                 $(this).find('span.lor_ponificator_list_avatar').hide();
+
+                // random ponification
+                if (randomPonifyUnponified) {
+                    var index = null;
+                    for (var i=0; i<tempUsers.length; i++) {
+                        if (tempUsers[i].user == user.name) {
+                            index = i;
+                        }
+                    }
+
+                    if (index === null) {
+                        tempUsers.push({
+                            user: user.name,
+                            avurl: getRandomAvaURL()
+                        });
+                        index = tempUsers.length-1;
+                    }
+
+                    var $ponifiedAvatar = $(this).find('img.lor_ponificator_ponified_avatar');
+                    if ($ponifiedAvatar.size() > 0) {
+                        $ponifiedAvatar.attr('src', tempUsers[index].avurl);
+                    } else {
+                        $(this).find('img:not(.lor_ponificator_ponified_avatar)')
+                            .after('<img alt="Ponies everywhere" src="'
+                                + tempUsers[index].avurl
+                                +'" class="lor_ponificator_ponified_avatar photo" />');
+                    }
+                }
             } else {
                 var $ava = $(this).find('img:not(.lor_ponificator_ponified_avatar)');
                 $ava.hide();
@@ -631,6 +677,44 @@ $(function () {
         $('ol.lor_ponificator_list_items li.pack ol').hide();
         $('ol.lor_ponificator_list_items span').click(listElementCallback);
     }
+
+    function controlCallback() {
+        var checkboxesCode = ''
+            +'<form class="lor_ponificator_control_checkboxes">'
+                +'<label>'
+                    +'<input type="checkbox" class="lor_ponificator_control_random_ponify_unponified" /> '
+                    +'Random ponify unponified users avatars'
+                +'</label>'
+            +'</form>'
+            ;
+
+        var htmlCode = ''
+            +'<h2>LOR-Ponificator advanced control</h2>'
+            + checkboxesCode
+            ;
+
+        showPopup(htmlCode);
+
+        $('form.lor_ponificator_control_checkboxes '
+            +'input[type=checkbox].lor_ponificator_control_random_ponify_unponified')
+            .each(function () {
+                if (randomPonifyUnponified) {
+                    $(this).attr('checked', 'checked');
+                }
+                $(this).change(function () {
+                    var checked = '0';
+                    randomPonifyUnponified = false;
+                    if ($(this).filter(':checked').size() > 0) {
+                        checked = '1';
+                        randomPonifyUnponified = true;
+                    }
+
+                    setCookie('lor_ponificator_random_ponify_unponified', checked);
+                    updateAvatars();
+                });
+            })
+
+    }
     
     function initAvatarTools() {
         var style = document.createElement('style');
@@ -717,6 +801,7 @@ $(function () {
             $(this).find('span.lor_ponificator_rand_avatar').click(randAvatarCallback);
             $(this).find('span.lor_ponificator_url_avatar').click(urlAvatarCallback);
             $(this).find('span.lor_ponificator_list_avatar').click(listCallback);
+            $(this).find('span.lor_ponificator_advanced_avatars_control').click(controlCallback);
         });
     }
 
