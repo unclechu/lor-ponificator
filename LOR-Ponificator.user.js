@@ -4,7 +4,7 @@
 // @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.2.2
+// @version     1.2.3
 // @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
 // @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
@@ -960,6 +960,16 @@ $(function () {
         );
         updateAvatars();
     }
+
+    function newRandomAvatarCallback() {
+        var user = catchUsername.call(this);
+        for (var i=0; i<tempUsers.length; i++) {
+            if (tempUsers[i].user == user.name) {
+                tempUsers[i].avurl = getRandomAvaURL();
+            }
+        }
+        updateAvatars();
+    }
     
     function initAvatarTools() {
         var style = document.createElement('style');
@@ -1030,8 +1040,9 @@ $(function () {
                     +'<span class="lor_ponificator_advanced_avatars_control" title="Advanced avatars control">CONTROL</span>'
                 +'</span>'
                 +'<span class="lor_ponificator_third_line">'
-                    +'<span class="lor_ponificator_view_original_avatar" title="View original avatar of this user">ORIGINAL</span>'
+                    +'<span class="lor_ponificator_view_original_avatar" title="View original avatar of this user">ORIG</span>'
                     +'<span class="lor_ponificator_fix_random_avatar" title="Fix this random avatar">FIX</span>'
+                    +'<span class="lor_ponificator_new_random_avatar" title="New random avatar for this user">NEW</span>'
                 +'</span>'
             +'</div>'
             ;
@@ -1049,6 +1060,7 @@ $(function () {
             $(this).find('span.lor_ponificator_advanced_avatars_control').click(controlCallback);
             $(this).find('span.lor_ponificator_view_original_avatar').click(originalAvatarCallback);
             $(this).find('span.lor_ponificator_fix_random_avatar').click(fixRandomAvatarCallback);
+            $(this).find('span.lor_ponificator_new_random_avatar').click(newRandomAvatarCallback);
         });
     }
 
