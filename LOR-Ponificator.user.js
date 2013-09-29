@@ -538,7 +538,13 @@ $(function () {
                 +'span.lor_ponificator_list_next_avatar,'
                 +'span.lor_ponificator_list_rand_avatar,'
                 +'span.lor_ponificator_list_url_avatar,'
-                +'span.lor_ponificator_list_cancel {'
+                +'span.lor_ponificator_list_cancel,'
+                +'span.lor_ponificator_ponified_list_unponify,'
+                +'span.lor_ponificator_ponified_list_prev_avatar,'
+                +'span.lor_ponificator_ponified_list_next_avatar,'
+                +'span.lor_ponificator_ponified_list_rand_avatar,'
+                +'span.lor_ponificator_ponified_list_url_avatar,'
+                +'span.lor_ponificator_ponified_list_list_avatar {'
                     +'text-decoration: underline;'
                     +'cursor: pointer;'
                     +'margin-right: 7px;'
@@ -549,7 +555,13 @@ $(function () {
                 +'span.lor_ponificator_list_next_avatar:hover,'
                 +'span.lor_ponificator_list_rand_avatar:hover,'
                 +'span.lor_ponificator_list_url_avatar:hover,'
-                +'span.lor_ponificator_list_cancel:hover {'
+                +'span.lor_ponificator_list_cancel:hover,'
+                +'span.lor_ponificator_ponified_list_unponify:hover,'
+                +'span.lor_ponificator_ponified_list_prev_avatar:hover,'
+                +'span.lor_ponificator_ponified_list_next_avatar:hover,'
+                +'span.lor_ponificator_ponified_list_rand_avatar:hover,'
+                +'span.lor_ponificator_ponified_list_url_avatar:hover,'
+                +'span.lor_ponificator_ponified_list_list_avatar:hover {'
                     +'color: white;'
                 +'}'
 
@@ -588,6 +600,22 @@ $(function () {
                     +'margin-left: 20px;'
                     +'margin-bottom: 10px;'
                 +'}'
+
+                +'form.lor_ponificator_control_checkboxes {'
+                    +'margin-bottom: 20px;'
+                +'}'
+                +'ul.lor_ponificator_ponified_list_control li {'
+                    +'margin-bottom: 20px;'
+                    +'line-height: 80px;'
+                +'}'
+                +'img.lor_ponificator_ponified_list_avatar {'
+                    +'max-width: 80px;'
+                    +'vertical-align: top;'
+                    +'margin-right: 20px;'
+                +'}'
+                +'span.lor_ponificator_ponified_list_username {'
+                    +'padding-right: 20px;'
+                +'}'
                 ;
             $(style).html(css);
             $(document.head).append(style);
@@ -608,7 +636,7 @@ $(function () {
         $('div.lor_ponificator_popup_closer').click(popupCloserCallback);
     }
 
-    function listCallback() {
+    function listCallback(controlCallbackAfterClose) {
         var user = catchUsername.call(this);
         if (user.index === false) throw new Error('Username not found');
 
@@ -664,7 +692,10 @@ $(function () {
                 JSON.stringify(ponifiedUsers)
             );
             updateAvatars();
-            popupCloserCallback.call(this);
+            popupCloserCallback();
+            if (controlCallbackAfterClose) {
+                controlCallback();
+            }
         }
 
         var list = '<ol class="lor_ponificator_list_items">';
@@ -747,7 +778,12 @@ $(function () {
 
         showPopup(htmlCode);
 
-        $('span.lor_ponificator_list_cancel').click(popupCloserCallback);
+        $('span.lor_ponificator_list_cancel').click(function () {
+            popupCloserCallback();
+            if (controlCallbackAfterClose) {
+                controlCallback();
+            }
+        });
         $('span.lor_ponificator_list_ok').click(okCallback);
         var usernameThis = new String(user.name);
         var $target = $('div.lor_ponificator_avatar_preview img');
@@ -789,9 +825,85 @@ $(function () {
         var htmlCode = ''
             +'<h2>LOR-Ponificator advanced control</h2>'
             + checkboxesCode
+            +'<h3>Ponified users avatars list</h3>'
             ;
 
+        var firstBuildList = true;
+        var rebuildList = function () {};
+
+        function getUsernameThis() {
+            return new String($(this).closest('li')
+                .find('span.lor_ponificator_ponified_list_username a')
+                .html());
+        }
+
+        function initButtons() {
+            $('span.lor_ponificator_ponified_list_unponify').click(function () {
+                unponifyUsername(getUsernameThis.call(this).toString());
+                rebuildList();
+            });
+            $('span.lor_ponificator_ponified_list_prev_avatar').click(function () {
+                prevAvatarCallback.call(getUsernameThis.call(this));
+                rebuildList();
+            });
+            $('span.lor_ponificator_ponified_list_next_avatar').click(function () {
+                nextAvatarCallback.call(getUsernameThis.call(this));
+                rebuildList();
+            });
+            $('span.lor_ponificator_ponified_list_rand_avatar').click(function () {
+                randAvatarCallback.call(getUsernameThis.call(this));
+                rebuildList();
+            });
+            $('span.lor_ponificator_ponified_list_url_avatar').click(function () {
+                urlAvatarCallback.call(getUsernameThis.call(this));
+                rebuildList();
+            });
+            $('span.lor_ponificator_ponified_list_list_avatar').click(function () {
+                popupCloserCallback();
+                listCallback.call(getUsernameThis.call(this), true);
+            });
+        }
+
+        rebuildList = function () {
+            var code = '';
+            if (firstBuildList) {
+                code += '<ul class="lor_ponificator_ponified_list_control">';
+            }
+            ponifiedUsers.forEach(function (user, index) {
+                code += '<li>'
+                    +'<img alt="Ponies everywhere" src="'
+                        + user.avurl
+                        +'" class="lor_ponificator_ponified_list_avatar" />'
+                    +'<span class="lor_ponificator_ponified_list_username">'
+                        +'<a href="http://www.linux.org.ru/people/'
+                            + user.user
+                            +'/profile" title=\'Go to "'
+                            + user.user +'" profile page\'>'
+                            + user.user
+                            +'</a></span>'
+                    +'<span class="lor_ponificator_ponified_list_unponify" title="Unponify this user">UNPONIFY</span>'
+                    +'<span class="lor_ponificator_ponified_list_prev_avatar" title="Previous avatar">←</span>'
+                    +'<span class="lor_ponificator_ponified_list_next_avatar" title="Next avatar">→</span>'
+                    +'<span class="lor_ponificator_ponified_list_rand_avatar" title="Random avatar">RANDOM</span>'
+                    +'<span class="lor_ponificator_ponified_list_url_avatar" title="Set cutsom avatar URL">URL</span>'
+                    +'<span class="lor_ponificator_ponified_list_list_avatar" title="Choose avatar from list">LIST</span>'
+                    +'</li>';
+            });
+            if (ponifiedUsers.length < 1) {
+                code += '<li>Ponified list is empty…</li>';
+            }
+            if (firstBuildList) {
+                code += '</ul>';
+                firstBuildList = false;
+                return code;
+            }
+            $('ul.lor_ponificator_ponified_list_control').html(code);
+            initButtons();
+        }
+
+        htmlCode += rebuildList();
         showPopup(htmlCode);
+        initButtons();
 
         $('form.lor_ponificator_control_checkboxes '
             +'input[type=checkbox].lor_ponificator_control_random_ponify_unponified')
@@ -810,8 +922,7 @@ $(function () {
                     setCookie('lor_ponificator_random_ponify_unponified', checked);
                     updateAvatars();
                 });
-            })
-
+            });
     }
 
     function originalAvatarCallback() {
