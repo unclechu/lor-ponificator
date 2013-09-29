@@ -4,7 +4,7 @@
 // @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.2.0
+// @version     1.2.1
 // @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
 // @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
@@ -755,7 +755,7 @@ $(function () {
         list += '</ol>';
 
         var htmlCode = ''
-            +'<h2>Choose avatar from list</h2>'
+            +'<h2>Choose avatar from list for user "'+ user.name +'"</h2>'
             +'<div class="lor_ponificator_avatar_preview">'
                 +'<p>Ponified:</p>'
                 +'<img alt="Ponies everywhere" src="'
