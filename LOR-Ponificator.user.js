@@ -4,7 +4,7 @@
 // @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.2.3
+// @version     1.2.4
 // @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
 // @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
@@ -15,96 +15,12 @@ $(function () {
     var excludePacksID = [ /* "bronyland_goodies_avatars_antagonist" */ ];
     var excludeURLs = [ /* "http://bronyland.com/goodies/avatars/antagonist/discord_avatar_001.png" */ ];
     var onlyPackID = [ /* "bronyland_goodies_avatars_applejack" */ ];
-    var excludeBroniesFromRandomPonifyUnponified = [
-        'a1batross',
-        'aidan',
-        'Akamanah',
-        'amomymous',
-        'AnimusPEXUS',
-        'Anonymous',
-        'Antimatter',
-        'AptGet',
-        'atrus',
-        'avertex',
-        'Bagrov',
-        'bsdfun',
-        'Chaser_Andrey',
-        'Cooler',
-        'com',
-        'Copycat',
-        'cryptohedge',
-        'Dark_SavanT',
-        'Darth_Revan',
-        'dearboy',
-        'Deneb',
-        'derlafff',
-        'devpony',
-        'Dispetcher14',
-        'DoctorSinus',
-        'drBatty',
-        'druganddrop-2',
-        'ekzotech',
-        'emulek',
-        'essir',
-        'evilmanul',
-        'Extraterrestrial',
-        'Falcon-peregrinus',
-        'Flyn',
-        'fornlr',
-        'HiddenComplexity',
-        'hizel',
-        'Hoodoo',
-        'IceAlchemist',
-        'Igorrr',
-        'Ingvarr',
-        'IPR',
-        'ishido',
-        'ishitori',
-        'kasthack',
-        'kiverattes',
-        'ktk',
-        'ktulhu666',
-        'Landgraf',
-        'Legioner',
-        'Le_Raux',
-        'Lonli-Lockley',
-        'Lorchanin',
-        'melkor217',
-        'mephistopheles',
-        'mopsene',
-        'morse',
-        'NetForHack',
-        'Newlifer',
-        'nihil',
-        'Old_Hamster',
-        'OldWiseCat',
-        'olibjerd',
-        'PaxthonFettel',
-        'pevzi',
-        'procoder99',
-        'proud_anon',
-        'quowah',
-        'reliktt',
-        'rikardoac',
-        'Romaboy',
-        'rtvd',
-        'StalinEXE',
-        'thelonelyisland',
-        'Thero',
-        'uin',
-        'vazgen05',
-        'veneperkele',
-        'voronin',
-        'x0r',
-        'Yaourt',
-        'yaspol',
-        'unclechu'
-    ];
 
-    var avatarsDatabase = null;
+    var avatarsDatabase = null; // remote database
     var ponifiedUsers = [];
     var avatarsURLs = [];
     var randomPonifyUnponified = false;
+    var excludeBroniesFromRandomPonifyUnponified = null; // remote database
 
     $.lor_ponificator_avatars_database_callback = function (jsonObject) {
         avatarsDatabase = jsonObject;
@@ -1123,6 +1039,7 @@ $(function () {
         if (avatarsDatabase.avatars_database.length < 1)
             throw new Error('Empty avatars database');
 
+        excludeBroniesFromRandomPonifyUnponified = avatarsDatabase.bronies_list;
         prepareAvatarsURLs();
         initAvatarTools();
         updateAvatars();
