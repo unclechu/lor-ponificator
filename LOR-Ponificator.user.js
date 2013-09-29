@@ -3,7 +3,7 @@
 // @namespace   LOR
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.0
+// @version     1.1
 // ==/UserScript==
 
 $(function () {
@@ -84,7 +84,13 @@ $(function () {
         return avatarsURLs[ getRandomInt( 0, avatarsURLs.length-1 ) ];
     }
 
-    function nextAvatar(username) {
+    /**
+     * side param possible values:
+     *  'prev'
+     *  'next'
+     *  'rand'
+     */
+    function rotateAvatar(username, side) {
         var userAvaURL = null;
         var userIndex = -1;
         for (var i=0; i<ponifiedUsers.length; i++) {
@@ -96,23 +102,42 @@ $(function () {
 
         if (userAvaURL === null) throw new Error('Username "'+ username +'" not found');
 
-        for (var i=0; i<avatarsURLs.length; i++) {
-            if (avatarsURLs[i] == userAvaURL) {
-                var newAvaIndex;
-                if (i+1 >= avatarsURLs.length) {
-                    newAvaIndex = 0;
-                } else {
-                    newAvaIndex = i+1;
+        if (side !== 'rand') {
+            for (var i=0; i<avatarsURLs.length; i++) {
+                if (avatarsURLs[i] == userAvaURL) {
+                    var newAvaIndex;
+
+                    if (side === 'prev') {
+                        if (i-1 < 0)
+                            newAvaIndex = avatarsURLs.length-1;
+                        else
+                            newAvaIndex = i-1;
+                    } else if (side === 'next') {
+                        if (i+1 >= avatarsURLs.length)
+                            newAvaIndex = 0;
+                        else
+                            newAvaIndex = i+1;
+                    } else {
+                        throw new Error('Incorrect side of avatar rotating');
+                    }
+
+                    ponifiedUsers[userIndex].avurl = avatarsURLs[newAvaIndex];
+                    setCookie(
+                        'lor_ponificator_ponified_users_avatars',
+                        JSON.stringify(ponifiedUsers)
+                    );
+                    updateAvatars();
+                    return;
                 }
-                ponifiedUsers[userIndex].avurl = avatarsURLs[newAvaIndex];
-                setCookie('lor_ponificator_ponified_users_avatars', JSON.stringify(ponifiedUsers));
-                updateAvatars();
-                return;
             }
         }
         
+        // if avatar url not found in database or side is 'rand' - set random avatar
         ponifiedUsers[userIndex].avurl = getRandomAvaURL();
-        setCookie('lor_ponificator_ponified_users_avatars', JSON.stringify(ponifiedUsers));
+        setCookie(
+            'lor_ponificator_ponified_users_avatars',
+            JSON.stringify(ponifiedUsers)
+        );
         updateAvatars();
     }
 
@@ -183,8 +208,12 @@ $(function () {
             if (user.index === false) {
                 $(this).find('img:not(.lor_ponificator_ponified_avatar)').show();
                 $(this).find('img.lor_ponificator_ponified_avatar').remove();
-                $(this).find('span.lor_ponificator_ponify_avatar').show().text('PONIFY!');
-                $(this).find('span.lor_ponificator_next_avatar').hide().text('');
+
+                $(this).find('span.lor_ponificator_ponify_avatar')
+                    .show()
+                    .text('PONIFY!')
+                    .attr('title', 'Ponify avatar of this username');
+                $(this).find('span.lor_ponificator_change_avatar').hide();
             } else {
                 var $ava = $(this).find('img:not(.lor_ponificator_ponified_avatar)');
                 $ava.hide();
@@ -197,32 +226,53 @@ $(function () {
                         .attr('src', ponifiedUsers[user.index].avurl)
                         .show();
                 }
-                $(this).find('span.lor_ponificator_ponify_avatar').show().text('UNPONIFY');
-                $(this).find('span.lor_ponificator_next_avatar').show().text('NEXT AVATAR');
+
+                $(this).find('span.lor_ponificator_ponify_avatar')
+                    .show()
+                    .text('UNPONIFY')
+                    .attr('title', 'Unponify avatar of this username');
+                $(this).find('span.lor_ponificator_change_avatar').show();
             }
         });
     }
 
     function avatarPonifyCallback() {
         var user = catchUsername.call(this);
-
-        if (user.index === false) {
+        if (user.index === false)
             ponifyUsername(user.name);
-        } else {
+        else
             unponifyUsername(user.name);
-        }
+    }
 
-        return false;
+    function prevAvatarCallback() {
+        var user = catchUsername.call(this);
+        if (user.index !== false) rotateAvatar(user.name, 'prev');
     }
 
     function nextAvatarCallback() {
         var user = catchUsername.call(this);
+        if (user.index !== false) rotateAvatar(user.name, 'next');
+    }
 
+    function randAvatarCallback() {
+        var user = catchUsername.call(this);
+        if (user.index !== false) rotateAvatar(user.name, 'rand');
+    }
+
+    function urlAvatarCallback() {
+        var user = catchUsername.call(this);
         if (user.index !== false) {
-            nextAvatar(user.name);
-        }
+            var avatarURL = prompt('Paste avatar URL', 'http://');
+            if ( ! avatarURL || avatarURL == ''
+            || avatarURL.match(/^http[s]?:\/\/$/)) return;
 
-        return false;
+            ponifiedUsers[user.index].avurl = avatarURL;
+            setCookie(
+                'lor_ponificator_ponified_users_avatars',
+                JSON.stringify(ponifiedUsers)
+            );
+            updateAvatars();
+        }
     }
     
     function initAvatarTools() {
@@ -237,6 +287,7 @@ $(function () {
                 +'height: 100%;'
                 +'display: block;'
                 +'opacity: 0.01;'
+                +'white-space: nowrap;'
             +'}'
             +'div.lor_ponificator_avatar_tools:hover {'
                 +'opacity: 1.0;'
@@ -249,9 +300,27 @@ $(function () {
                 +'color: #babdb6;'
                 +'opacity: 0.9;'
                 +'padding: 0 5px;'
-                +'cursor: pointer;'
                 +'text-decoration: underline;'
                 +'text-align: center;'
+            +'}'
+            +'div.lor_ponificator_avatar_tools span span,'
+            +'div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar {'
+                +'cursor: pointer;'
+                +'display: inline-block !important;'
+                +'background: none;'
+                +'opacity: 1.0;'
+            +'}'
+            +'div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar {'
+                +'background: #272c2d;'
+                +'display: block !important;'
+                +'opacity: 0.9;'
+            +'}'
+            +'div.lor_ponificator_avatar_tools span span:hover,'
+            +'div.lor_ponificator_avatar_tools span.lor_ponificator_ponify_avatar:hover {'
+                +'color: white;'
+            +'}'
+            +'img.lor_ponificator_ponified_avatar {'
+                +'max-width: 150px;'
             +'}'
             ;
         $(style).html(css);
@@ -260,7 +329,12 @@ $(function () {
         var tools = ''
             +'<div class="lor_ponificator_avatar_tools">'
                 +'<span class="lor_ponificator_ponify_avatar"></span>'
-                +'<span class="lor_ponificator_next_avatar"></span>'
+                +'<span class="lor_ponificator_change_avatar">'
+                    +'<span class="lor_ponificator_prev_avatar" title="Previous avatar">«</span>'
+                    +'<span class="lor_ponificator_next_avatar" title="Next avatar">»</span>'
+                    +'<span class="lor_ponificator_rand_avatar" title="Random avatar">RAND</span>'
+                    +'<span class="lor_ponificator_url_avatar" title="Set cutsom avatar URL">URL</span>'
+                +'</span>'
             +'</div>'
             ;
 
@@ -269,7 +343,10 @@ $(function () {
         }).each(function () {
             $(this).append(tools);
             $(this).find('span.lor_ponificator_ponify_avatar').click(avatarPonifyCallback);
+            $(this).find('span.lor_ponificator_prev_avatar').click(prevAvatarCallback);
             $(this).find('span.lor_ponificator_next_avatar').click(nextAvatarCallback);
+            $(this).find('span.lor_ponificator_rand_avatar').click(randAvatarCallback);
+            $(this).find('span.lor_ponificator_url_avatar').click(urlAvatarCallback);
         });
     }
 
