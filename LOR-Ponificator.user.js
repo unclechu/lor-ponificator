@@ -4,7 +4,7 @@
 // @description LINUX.ORG.RU avatars ponificator
 // @include     http://*.linux.org.ru/*
 // @include     https://*.linux.org.ru/*
-// @version     1.2.4.1
+// @version     1.2.4.2
 // @installURL  https://github.com/unclechu/lor-ponificator/raw/master/LOR-Ponificator.user.js
 // @homepage    https://github.com/unclechu/lor-ponificator
 // ==/UserScript==
@@ -611,7 +611,7 @@ $(function () {
             );
             updateAvatars();
             popupCloserCallback();
-            if (controlCallbackAfterClose) {
+            if (controlCallbackAfterClose === true) {
                 controlCallback();
             }
         }
@@ -698,7 +698,7 @@ $(function () {
 
         $('span.lor_ponificator_list_cancel').click(function () {
             popupCloserCallback();
-            if (controlCallbackAfterClose) {
+            if (controlCallbackAfterClose === true) {
                 controlCallback();
             }
         });
