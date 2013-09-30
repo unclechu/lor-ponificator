@@ -1930,7 +1930,8 @@ $.lor_ponificator_avatars_database_callback({
         'x0r',
         'Yaourt',
         'yaspol',
-        'unclechu'
+        'unclechu',
+        'MiniRoboDancer'
     ]
 });
 // vim:set ts=4 sw=4 expandtab:
